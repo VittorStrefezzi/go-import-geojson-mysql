@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"io/ioutil"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/sirupsen/logrus"
@@ -45,11 +46,11 @@ func main() {
 	defer db.Close()
 
 	tx, _ := db.Begin()
-	stmt, _ := tx.Prepare("insert into city(ibge_id, name, description, json) values(?,?,?,?)")
+	stmt, _ := tx.Prepare("insert into cities(ibge_id, name, description, json, created_at, updated_at) values(?,?,?,?,?,?)")
 
 	for i, item := range geojson.Features {
 		data, _ := json.Marshal(geojson.Features[i])
-		_, err = stmt.Exec(item.Properties.ID, item.Properties.Name, item.Properties.Description, data)
+		_, err = stmt.Exec(item.Properties.ID, item.Properties.Name, item.Properties.Description, data, time.Now(), time.Now())
 
 		if err != nil {
 			tx.Rollback()
